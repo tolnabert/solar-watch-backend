@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.controller;
 
+import com.codecool.solarwatch.model.LocationReport;
 import com.codecool.solarwatch.model.TwilightReport;
 import com.codecool.solarwatch.service.OpenWeatherService;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,9 @@ public class LocationController {
     @GetMapping("/twilight")
     public ResponseEntity<?> getTwilight(@RequestParam String city) {
 
-        if (city == null) {
-            return ResponseEntity.badRequest().body("City must be given");
-        }
-
-        TwilightReport twilight = openWeatherService.getTwilight(city);
+        LocationReport location = openWeatherService.getLocation(city);
+        TwilightReport twilight = openWeatherService.getTwilight(location);
 
         return ResponseEntity.ok(twilight);
-
     }
 }

@@ -1,6 +1,6 @@
 package com.codecool.solarwatch.service;
 
-import com.codecool.solarwatch.model.OpenWeatherReport;
+import com.codecool.solarwatch.model.LocationReport;
 import com.codecool.solarwatch.model.TwilightReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +18,18 @@ public class OpenWeatherService {
         this.restTemplate = restTemplate;
     }
 
-    public TwilightReport getTwilight(String city) {
+    public LocationReport getLocation(String city) {
 
         String url = String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s&appid=%s", city, API_KEY);
-        OpenWeatherReport openWeatherResponse = restTemplate.getForObject(url, OpenWeatherReport.class);
+        LocationReport response = restTemplate.getForObject(url, LocationReport.class);
 
-        String sunriseSunsetUrl = String.format("https://api.sunrise-sunset.org/json?lat=%s&lng=%s", openWeatherResponse.lat(), openWeatherResponse.lon());
-        TwilightReport response = restTemplate.getForObject(sunriseSunsetUrl, TwilightReport.class);
+        return new LocationReport(response.lat(), response.lon());
+    }
+
+    public TwilightReport getTwilight(LocationReport location) {
+
+        String url = String.format("https://api.sunrise-sunset.org/json?lat=%s&lng=%s", location.lat(), location.lon());
+        TwilightReport response = restTemplate.getForObject(url, TwilightReport.class);
 
         logger.info("Response from Open Weather API: {}", response);
 
