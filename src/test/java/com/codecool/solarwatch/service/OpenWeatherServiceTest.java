@@ -27,7 +27,7 @@ class OpenWeatherServiceTest {
     }
 
     @Test
-    void testGetLocation() {
+    void testGetLocation_LocationOfBudapest_BothShouldBeTrue() {
         LocationReport[] mockResponse = {new LocationReport(47.4979937, 19.0403594)};
         when(restTemplate.getForObject(any(String.class), any(Class.class))).thenReturn(mockResponse);
 
@@ -38,7 +38,7 @@ class OpenWeatherServiceTest {
     }
 
     @Test
-    void testGetTwilight() {
+    void testGetTwilight_SunriseAndSunsetOfBudapest_BothShouldReturnTrue() {
         SunriseSunsetResponse mockResponse = new SunriseSunsetResponse(new SunriseSunsetResults("4:09:54 AM", "5:22:19 PM"));
         when(restTemplate.getForObject(any(String.class), any(Class.class))).thenReturn(mockResponse);
 
@@ -47,5 +47,25 @@ class OpenWeatherServiceTest {
 
         assertEquals("4:09:54 AM", results.sunrise());
         assertEquals("5:22:19 PM", results.sunset());
+    }
+
+    @Test
+    void testGetLocation_NoLocationDataFound() {
+        when(restTemplate.getForObject(any(String.class), any(Class.class))).thenReturn(null);
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> openWeatherService.getLocation("UnknownCity"));
+        assertEquals("No location data found for the specified city: UnknownCity", exception.getMessage());
+    }
+
+    @Test
+    void testGetTwilight_NoTwilightDataFound() {
+        when(restTemplate.getForObject(any(String.class), any(Class.class))).thenReturn(null);
+
+        LocationReport location = new LocationReport(47.4979937, 19.0403594);
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> openWeatherService.getTwilight(location));
+        assertEquals("No sunrise/sunset data found for the specified location.", exception.getMessage());
     }
 }
