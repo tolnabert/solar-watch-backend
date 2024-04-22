@@ -4,6 +4,7 @@ import com.codecool.solarwatch.model.LocationReport;
 import com.codecool.solarwatch.model.TwilightReport;
 import com.codecool.solarwatch.service.OpenWeatherService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +20,8 @@ public class LocationController {
         this.openWeatherService = openWeatherService;
     }
 
-    @GetMapping("/twilight")
-    public List<TwilightReport> getTwilight(@RequestParam String city,
+    @GetMapping("/twilight/{city}")
+    public List<TwilightReport> getTwilight(@PathVariable String city,
                                             @RequestParam(defaultValue = "1") int limit) {
 
         List<LocationReport> locations = openWeatherService.getLocation(city, limit);
