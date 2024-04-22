@@ -1,12 +1,17 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.exceptionhandler.LocationNotFoundException;
+import com.codecool.solarwatch.exceptionhandler.NoTwilightDataException;
 import com.codecool.solarwatch.model.LocationReport;
-import com.codecool.solarwatch.model.SunriseSunsetResponse;
-import com.codecool.solarwatch.model.SunriseSunsetResults;
+import com.codecool.solarwatch.model.TwilightResponse;
+import com.codecool.solarwatch.model.TwilightReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class OpenWeatherService {
@@ -19,28 +24,27 @@ public class OpenWeatherService {
         this.restTemplate = restTemplate;
     }
 
-    public LocationReport getLocation(String city) {
-        String url = String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s&appid=%s", city, API_KEY);
+    public List<LocationReport> getLocation(String city, int limit) {
+        String url = String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s&limit=%s&appid=%s", city, limit, API_KEY);
         LocationReport[] response = restTemplate.getForObject(url, LocationReport[].class);
 
         if (response != null && response.length > 0) {
-            return response[0];
+            return Arrays.asList(Arrays.copyOf(response, Math.min(limit, response.length)));
         } else {
-            throw new RuntimeException("No location data found for the specified city: " + city);
+            throw new LocationNotFoundException(city);
         }
     }
 
-    public SunriseSunsetResults getTwilight(LocationReport location) {
-
+    public TwilightReport getTwilight(LocationReport location) {
         String url = String.format("https://api.sunrise-sunset.org/json?lat=%s&lng=%s", location.lat(), location.lon());
-        SunriseSunsetResponse response = restTemplate.getForObject(url, SunriseSunsetResponse.class);
+        TwilightResponse response = restTemplate.getForObject(url, TwilightResponse.class);
 
         if (response != null && response.results() != null) {
-            SunriseSunsetResults results = response.results();
+            TwilightReport results = response.results();
             logger.info("Sunrise: {}, Sunset: {}", results.sunrise(), results.sunset());
-            return new SunriseSunsetResults(results.sunrise(), results.sunset());
+            return new TwilightReport(results.sunrise(), results.sunset());
         } else {
-            throw new RuntimeException("No sunrise/sunset data found for the specified location.");
+            throw new NoTwilightDataException();
         }
     }
 }
