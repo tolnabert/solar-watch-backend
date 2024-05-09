@@ -1,7 +1,7 @@
-package com.codecool.solarwatch.model.solarinfo;
+package com.codecool.solarwatch.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record SolarInfoResultsDTO(SolarInfoDTO results) {
+public record SolarInfoResultsResponse(SolarInfoDTO results) {
 }

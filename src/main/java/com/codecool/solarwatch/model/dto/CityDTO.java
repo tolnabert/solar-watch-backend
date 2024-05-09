@@ -1,4 +1,4 @@
-package com.codecool.solarwatch.model.city;
+package com.codecool.solarwatch.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

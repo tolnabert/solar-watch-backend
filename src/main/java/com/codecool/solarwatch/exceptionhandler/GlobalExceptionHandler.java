@@ -12,7 +12,7 @@ import java.time.format.DateTimeParseException;
 public class GlobalExceptionHandler {
 
     @ResponseBody
-    @ExceptionHandler(LocationNotFoundException.class)
+    @ExceptionHandler(CityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleLocationNotFoundException(Exception ex) {
         return ex.getMessage();

@@ -1,9 +1,9 @@
-package com.codecool.solarwatch.model.solarinfo;
+package com.codecool.solarwatch.model.entity;
 
-import com.codecool.solarwatch.model.city.City;
 import jakarta.persistence.*;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 public class SolarInfo {
@@ -11,6 +11,7 @@ public class SolarInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private UUID publicId;
     private String date;
     private String sunrise;
     private String sunset;
@@ -21,12 +22,12 @@ public class SolarInfo {
     public SolarInfo() {
     }
 
-    public long getId() {
-        return id;
+    public UUID getPublicId() {
+        return publicId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setPublicId(UUID publicId) {
+        this.publicId = publicId;
     }
 
     public String getDate() {

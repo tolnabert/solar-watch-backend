@@ -1,10 +1,10 @@
-package com.codecool.solarwatch.model.city;
+package com.codecool.solarwatch.model.entity;
 
-import com.codecool.solarwatch.model.solarinfo.SolarInfo;
 import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 public class City {
@@ -12,6 +12,7 @@ public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private UUID publicId;
     private String name;
     private String country;
     private String state;
@@ -20,12 +21,13 @@ public class City {
     @OneToMany(mappedBy = "city")
     private List<SolarInfo> forecasts;
 
-    public long getId() {
-        return id;
+
+    public UUID getPublicId() {
+        return publicId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setPublicId(UUID publicId) {
+        this.publicId = publicId;
     }
 
     public String getName() {
@@ -92,6 +94,7 @@ public class City {
     @Override
     public String toString() {
         return "City{" +
+                "publicId=" + publicId +
                 ", name='" + name + '\'' +
                 ", country='" + country + '\'' +
                 ", state='" + state + '\'' +
