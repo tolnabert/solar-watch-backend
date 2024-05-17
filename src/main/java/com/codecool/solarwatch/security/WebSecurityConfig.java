@@ -64,9 +64,9 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("auth/**").permitAll()
-                                .requestMatchers("api/solar-info/data/**").hasRole("CLIENT")
-                                .requestMatchers("api/solar-info/add/**", "api/solar-info/update/**", "api/solar-info/delete/**").hasRole("ADMIN")
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/solar-info/data/**").hasRole("CLIENT")
+                                .requestMatchers("/api/solar-info/data/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
 

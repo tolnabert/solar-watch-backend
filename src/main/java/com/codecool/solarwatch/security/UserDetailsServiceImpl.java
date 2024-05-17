@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service // checks for our B if we have a user for that forexample login request
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final ClientRepository clientRepository;

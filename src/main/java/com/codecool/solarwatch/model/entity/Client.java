@@ -29,6 +29,14 @@ public class Client {
     public Client() {
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public UUID getPublicId() {
         return publicId;
     }

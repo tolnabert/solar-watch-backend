@@ -25,7 +25,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
-    @Autowired
+//    @Autowired
     public AuthTokenFilter(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
@@ -52,7 +52,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String parseJwt(HttpServletRequest request) {
+    private String parseJwt(HttpServletRequest request) { //localstorage token valid
         String headerAuth = request.getHeader("Authorization");
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {

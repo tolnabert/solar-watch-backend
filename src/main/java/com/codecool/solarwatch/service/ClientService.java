@@ -7,6 +7,7 @@ import com.codecool.solarwatch.model.payload.LoginRequest;
 import com.codecool.solarwatch.model.payload.RegistrationRequest;
 import com.codecool.solarwatch.repository.ClientRepository;
 import com.codecool.solarwatch.security.jwt.JwtUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ public class ClientService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
+    @Autowired
     public ClientService(ClientRepository clientRepository, PasswordEncoder encoder, AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
         this.clientRepository = clientRepository;
         this.encoder = encoder;
@@ -35,7 +37,16 @@ public class ClientService {
         this.jwtUtils = jwtUtils;
     }
 
-    public void registerClient(RegistrationRequest registrationRequest) {
+    //TODO logger needed
+    public void registerClient(RegistrationRequest registrationRequest) {//TODO how can I pass this exception to frontend, so I can tell the issue
+        if (clientRepository.existsByUsername(registrationRequest.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        if (clientRepository.existsByEmail(registrationRequest.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
         Client client = new Client();
         client.setPublicId(UUID.randomUUID());
         client.setFirstName(registrationRequest.getFirstName());
@@ -53,7 +64,6 @@ public class ClientService {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         User userDetails = (User) authentication.getPrincipal();

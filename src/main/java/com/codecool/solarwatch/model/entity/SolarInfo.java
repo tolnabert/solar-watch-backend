@@ -15,11 +15,18 @@ public class SolarInfo {
     private String date;
     private String sunrise;
     private String sunset;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private City city;
 
     public SolarInfo() {
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public UUID getPublicId() {

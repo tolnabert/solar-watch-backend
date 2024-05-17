@@ -14,13 +14,20 @@ public class City {
     private long id;
     private UUID publicId;
     private String name;
-    private String country;
+    private String country;//other table with relation
     private String state;
     private double lon;
     private double lat;
     @OneToMany(mappedBy = "city")
     private List<SolarInfo> forecasts;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public UUID getPublicId() {
         return publicId;
@@ -38,6 +45,22 @@ public class City {
         this.name = name;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
     public double getLon() {
         return lon;
     }
@@ -50,24 +73,8 @@ public class City {
         return lat;
     }
 
-    public void setLat(double latitude) {
-        this.lat = latitude;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
+    public void setLat(double lat) {
+        this.lat = lat;
     }
 
     public List<SolarInfo> getForecasts() {
