@@ -11,7 +11,5 @@ import java.util.UUID;
 @Repository
 public interface SolarInfoRepository extends JpaRepository<SolarInfo, Long> {
 
-    SolarInfo findByCityAndDate(City city, String date);
-    Optional<SolarInfo> findByPublicId(UUID id);
-    boolean deleteByPublicId(UUID id);
+    Optional<SolarInfo> findByCityAndDate(City city, String date);
 }

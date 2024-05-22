@@ -14,12 +14,12 @@ public class City {
     private long id;
     private UUID publicId;
     private String name;
-    private String country;//other table with relation
+    private String country;
     private String state;
-    private double lon;
-    private double lat;
+    private double longitude;
+    private double latitude;
     @OneToMany(mappedBy = "city")
-    private List<SolarInfo> forecasts;
+    private List<SolarInfo> solarInfos;
 
     public long getId() {
         return id;
@@ -61,28 +61,28 @@ public class City {
         this.state = state;
     }
 
-    public double getLon() {
-        return lon;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setLon(double lon) {
-        this.lon = lon;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
-    public double getLat() {
-        return lat;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setLat(double lat) {
-        this.lat = lat;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
-    public List<SolarInfo> getForecasts() {
-        return forecasts;
+    public List<SolarInfo> getSolarInfos() {
+        return solarInfos;
     }
 
-    public void setForecasts(List<SolarInfo> forecasts) {
-        this.forecasts = forecasts;
+    public void setSolarInfos(List<SolarInfo> solarInfos) {
+        this.solarInfos = solarInfos;
     }
 
     @Override
@@ -90,12 +90,12 @@ public class City {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         City city = (City) o;
-        return Double.compare(lon, city.lon) == 0 && Double.compare(lat, city.lat) == 0 && Objects.equals(name, city.name) && Objects.equals(country, city.country) && Objects.equals(state, city.state) && Objects.equals(forecasts, city.forecasts);
+        return Double.compare(longitude, city.longitude) == 0 && Double.compare(latitude, city.latitude) == 0 && Objects.equals(name, city.name) && Objects.equals(country, city.country) && Objects.equals(state, city.state) && Objects.equals(solarInfos, city.solarInfos);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, country, state, lon, lat, forecasts);
+        return Objects.hash(name, country, state, longitude, latitude, solarInfos);
     }
 
     @Override
@@ -105,8 +105,8 @@ public class City {
                 ", name='" + name + '\'' +
                 ", country='" + country + '\'' +
                 ", state='" + state + '\'' +
-                ", lon=" + lon +
-                ", lat=" + lat +
+                ", lon=" + longitude +
+                ", lat=" + latitude +
                 '}';
     }
 }

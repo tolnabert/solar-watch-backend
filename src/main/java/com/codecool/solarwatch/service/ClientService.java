@@ -55,7 +55,7 @@ public class ClientService {
         client.setEmail(registrationRequest.getEmail());
         client.setUsername(registrationRequest.getUsername());
         client.setPassword(encoder.encode(registrationRequest.getPassword()));
-        client.setRoles(Set.of(Role.ROLE_CLIENT));
+        client.setRoles(Set.of(Role.ROLE_USER));
 
         clientRepository.save(client);
     }

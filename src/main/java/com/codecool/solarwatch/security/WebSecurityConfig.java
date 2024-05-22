@@ -65,8 +65,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/api/solar-info/data/**").hasRole("CLIENT")
-                                .requestMatchers("/api/solar-info/data/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/api/solar-info/**").hasRole("USER")
+                                .requestMatchers("/api/solar-info/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
 

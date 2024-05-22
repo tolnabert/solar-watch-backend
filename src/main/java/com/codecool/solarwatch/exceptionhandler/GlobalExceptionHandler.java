@@ -12,9 +12,9 @@ import java.time.format.DateTimeParseException;
 public class GlobalExceptionHandler {
 
     @ResponseBody
-    @ExceptionHandler(CityNotFoundException.class)
+    @ExceptionHandler(CityNotFoundInternalException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleLocationNotFoundException(Exception ex) {
+    public String handleInternalLocationNotFoundException(Exception ex) {
         return ex.getMessage();
     }
 
@@ -36,6 +36,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleIllegalArgumentException(Exception ex) {
+        return ex.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(CityNotFoundExternalException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleExternalLocationNotFoundException(Exception ex) {
         return ex.getMessage();
     }
 }

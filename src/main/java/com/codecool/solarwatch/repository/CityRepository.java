@@ -12,7 +12,6 @@ import java.util.UUID;
 @Repository
 public interface CityRepository extends JpaRepository<City, Long> {
 
-    Set<City> findByName(String cityName);
-    Optional<City> findByPublicId(UUID id);
-    Optional<City> findByNameAndLatAndLon(String cityName, double latitude, double longitude);
+    Set<City> findByNameAndCountry(String cityName, String country);
+    Set<City> findByNameAndCountryAndState(String cityName, String country, String state);
 }

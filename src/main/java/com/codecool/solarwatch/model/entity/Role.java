@@ -1,6 +1,6 @@
 package com.codecool.solarwatch.model.entity;
 
 public enum Role {
-    ROLE_CLIENT,
+    ROLE_USER,
     ROLE_ADMIN,
 }
