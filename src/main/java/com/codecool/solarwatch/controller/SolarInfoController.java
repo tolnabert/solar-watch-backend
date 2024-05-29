@@ -23,7 +23,9 @@ public class SolarInfoController {
     public Set<SolarInfoDTO> getSolarInfo(@RequestParam String city,
                                           @RequestParam String country,
                                           @RequestParam(required = false) String state,
-                                          @RequestParam String date) {
+                                          @RequestParam String date
+
+    ) {
         LOG.info("Received request to get solar info for city {}", city);
         return solarWatchService.getSolarInfo(city, country, state, date);
     }

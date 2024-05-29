@@ -3,6 +3,7 @@ package com.codecool.solarwatch.security;
 import com.codecool.solarwatch.security.jwt.AuthEntryPointJwt;
 import com.codecool.solarwatch.security.jwt.AuthTokenFilter;
 import com.codecool.solarwatch.security.jwt.JwtUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,7 @@ public class WebSecurityConfig {
 
     private final JwtUtils jwtUtils;
 
+    @Autowired
     public WebSecurityConfig(UserDetailsService userDetailsService, AuthEntryPointJwt unauthorizedHandler, JwtUtils jwtUtils) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
@@ -64,9 +66,9 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/solar-info/**").hasRole("USER")
-                                .requestMatchers("/api/solar-info/admin/**").hasRole("ADMIN")
+//                                .requestMatchers("/api/solar-info/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
 

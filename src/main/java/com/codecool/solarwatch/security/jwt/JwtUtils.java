@@ -17,13 +17,11 @@ import java.util.Date;
 public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    private static final String JWT_SECRET_PROPERTY = "codecool.app.jwtSecret";
-    private static final String JWT_EXPIRATION_MS_PROPERTY = "codecool.app.jwtExpirationMs";
 
-    @Value("${" + JWT_SECRET_PROPERTY + "}")
+    @Value("${codecool.app.jwtSecret}")
     private String jwtSecret;
 
-    @Value("${" + JWT_EXPIRATION_MS_PROPERTY + "}")
+    @Value("${codecool.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {

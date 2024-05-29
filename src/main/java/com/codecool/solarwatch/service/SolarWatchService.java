@@ -90,8 +90,8 @@ public class SolarWatchService implements UrlQueryValidator {
     }
 
     private String buildCityUrl(String cityName, String country, String state) {
-        if (country.equals("US")) {
-            return String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s,%s,%s&appid=%s", cityName, country, state, API_KEY);
+        if (country.equalsIgnoreCase("us")) {
+            return String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s,%s,%s&appid=%s", cityName, state, country, API_KEY);
         } else {
             return String.format("https://api.openweathermap.org/geo/1.0/direct?q=%s,%s&appid=%s", cityName, country, API_KEY);
         }

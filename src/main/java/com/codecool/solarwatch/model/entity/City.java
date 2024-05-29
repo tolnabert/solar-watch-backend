@@ -1,6 +1,7 @@
 package com.codecool.solarwatch.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +13,7 @@ public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private UUID publicId;
+    private UUID publicId; //UUID type
     private String name;
     private String country;
     private String state;
@@ -20,6 +21,9 @@ public class City {
     private double latitude;
     @OneToMany(mappedBy = "city")
     private List<SolarInfo> solarInfos;
+
+    public City() {
+    }
 
     public long getId() {
         return id;
@@ -101,12 +105,11 @@ public class City {
     @Override
     public String toString() {
         return "City{" +
-                "publicId=" + publicId +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", country='" + country + '\'' +
                 ", state='" + state + '\'' +
-                ", lon=" + longitude +
-                ", lat=" + latitude +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
                 '}';
     }
 }

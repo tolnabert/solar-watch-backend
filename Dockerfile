@@ -1,5 +1,5 @@
 # Dockerfile
 FROM eclipse-temurin:21-jre-alpine
-WORKDIR /tmp
-COPY target/*.jar app.jar
-ENTRYPOINT ["java","-jar","app.jar"]
+WORKDIR /app
+COPY target/*.jar ./app-solarwatch.jar
+ENTRYPOINT ["java","-jar","app-solarwatch.jar"]

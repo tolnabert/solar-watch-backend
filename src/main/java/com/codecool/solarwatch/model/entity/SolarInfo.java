@@ -85,9 +85,10 @@ public class SolarInfo {
     @Override
     public String toString() {
         return "SolarInfo{" +
-                ", date='" + date + '\'' +
+                "date='" + date + '\'' +
                 ", sunrise='" + sunrise + '\'' +
                 ", sunset='" + sunset + '\'' +
+                ", city=" + city +
                 '}';
     }
 }
