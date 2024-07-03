@@ -68,7 +68,7 @@ public class SolarWatchServiceTest {
         solarInfo.setSunrise("3:52:45 AM");
         solarInfo.setSunset("8:02:16 PM");
 
-        when(cityRepository.findByNameAndCountryAndState(cityName, country, state)).thenReturn(Set.of(city));
+        when(cityRepository.findByNameAndCountryAndStateIgnoreCase(cityName, country, state)).thenReturn(Set.of(city));
         when(solarInfoRepository.findByCityAndDate(city, date)).thenReturn(Optional.of(solarInfo));
 
         // Act

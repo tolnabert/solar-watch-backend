@@ -19,6 +19,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.codecool.solarwatch.service.StringUtils.capitalize;
+import static com.codecool.solarwatch.service.StringUtils.capitalizeCountryCode;
+
 @Service
 public class SolarWatchService implements UrlQueryValidator {
 
@@ -37,30 +40,31 @@ public class SolarWatchService implements UrlQueryValidator {
     }
 
     public Set<SolarInfoDTO> getSolarInfo(String cityName, String country, String state, String date) {
-        String lowerCaseCityName = cityName.toLowerCase();
-        String lowerCaseState = (state == null) ? null : state.toLowerCase();
+        String normalizedCityName = cityName.toLowerCase();
+        String normalizedCountryName = country.toLowerCase();
+        String normalizedStateName = (state == null) ? null : state.toLowerCase();
 
-        Set<City> citySet;
-        if (lowerCaseState == null) {
-            citySet = cityRepository.findByNameAndCountry(lowerCaseCityName, country);
+        Set<City> cities;
+        if (normalizedStateName == null) {
+            cities = cityRepository.findByNameAndCountryIgnoreCase(cityName, country);
         } else {
-            citySet = cityRepository.findByNameAndCountryAndState(lowerCaseCityName, country, state);
+            cities = cityRepository.findByNameAndCountryAndStateIgnoreCase(cityName, country, state);
         }
 
         Set<SolarInfoDTO> solarInfoDTOSet = new HashSet<>();
 
-        if (citySet.isEmpty()) {
-            City city = fetchCity(cityName, country, state);
-            SolarInfo solarInfo = fetchSunriseSunset(city, date);
+        if (cities.isEmpty()) {
+            City city = saveCity(normalizedCityName, normalizedCountryName, normalizedStateName);
+            SolarInfo solarInfo = saveSunriseSunset(city, date);
             solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
         } else {
-            for (City city : citySet) {
+            for (City city : cities) {
                 Optional<SolarInfo> solarInfoOptional = solarInfoRepository.findByCityAndDate(city, date);
 
                 if (solarInfoOptional.isPresent()) {
                     solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfoOptional.get()));
                 } else {
-                    SolarInfo solarInfo = fetchSunriseSunset(city, date);
+                    SolarInfo solarInfo = saveSunriseSunset(city, date);
                     solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
                 }
             }
@@ -72,9 +76,9 @@ public class SolarWatchService implements UrlQueryValidator {
     private SolarInfoDTO convertToSolarInfoDTO(SolarInfo solarInfo) {
         City city = solarInfo.getCity();
         return new SolarInfoDTO(
-                city.getName(),
-                city.getCountry(),
-                city.getState(),
+                capitalize(city.getName()),
+                capitalizeCountryCode(city.getCountry()),
+                city.getState() != null ? capitalize(city.getState()) : null,
                 city.getLatitude(),
                 city.getLongitude(),
                 solarInfo.getSunrise(),
@@ -82,10 +86,10 @@ public class SolarWatchService implements UrlQueryValidator {
         );
     }
 
-    private City fetchCity(String cityName, String country, String state) {
+    private City saveCity(String cityName, String country, String state) {
         String url = buildCityUrl(cityName, country, state);
         logger.info("URL: " + url);
-        CityDTO[] cityArray = fetchCityData(url);
+        CityDTO[] cityArray = fetchCity(url);
         return saveAndReturnCity(validateCityResponse(cityArray, cityName, country, state));
     }
 
@@ -97,7 +101,7 @@ public class SolarWatchService implements UrlQueryValidator {
         }
     }
 
-    private CityDTO[] fetchCityData(String url) {
+    private CityDTO[] fetchCity(String url) {
         Mono<CityDTO[]> responseMono = webClient
                 .get()
                 .uri(url)
@@ -124,6 +128,10 @@ public class SolarWatchService implements UrlQueryValidator {
 
     private City saveAndReturnCity(CityDTO cityDTO) {
         City city = convertToCity(cityDTO);
+        Optional<City> existingCity = cityRepository.findByNameAndCountryAndState(city.getName(), city.getCountry(), city.getState());
+        if (existingCity.isPresent()) {
+            return existingCity.get();
+        }
         logger.info("City saved: {} ", city);
         return cityRepository.save(city);
     }
@@ -131,9 +139,13 @@ public class SolarWatchService implements UrlQueryValidator {
     private City convertToCity(CityDTO cityDTO) {
         City city = new City();
         city.setPublicId(UUID.randomUUID());
-        city.setName(cityDTO.name());
-        city.setCountry(cityDTO.country());
-        city.setState(cityDTO.state());
+        city.setName(cityDTO.name().toLowerCase());
+        city.setCountry(cityDTO.country().toLowerCase());
+        if (cityDTO.state() != null) {
+            city.setState(cityDTO.state().toLowerCase());
+        } else {
+            city.setState(null);
+        }
         city.setLongitude(cityDTO.lon());
         city.setLatitude(cityDTO.lat());
         return city;
@@ -144,13 +156,13 @@ public class SolarWatchService implements UrlQueryValidator {
         return String.format("https://api.sunrise-sunset.org/json?lat=%s&lng=%s&date=%s", latitude, longitude, date);
     }
 
-    public SolarInfo fetchSunriseSunset(City city, String date) {
+    public SolarInfo saveSunriseSunset(City city, String date) {
         String url = buildSunriseSunsetUrl(city.getLatitude(), city.getLongitude(), date);
-        SunriseSunsetResultsResponse response = fetchSunriseSunsetData(url);
+        SunriseSunsetResultsResponse response = fetchSunriseSunset(url);
         return saveAndReturnSolarInfo(response, city, date);
     }
 
-    private SunriseSunsetResultsResponse fetchSunriseSunsetData(String url) {
+    private SunriseSunsetResultsResponse fetchSunriseSunset(String url) {
         Mono<SunriseSunsetResultsResponse> responseMono = webClient
                 .get()
                 .uri(url)
@@ -168,7 +180,13 @@ public class SolarWatchService implements UrlQueryValidator {
 
     private SolarInfo saveAndReturnSolarInfo(SunriseSunsetResultsResponse response, City city, String date) {
         SolarInfo solarInfo = convertToSolarInfo(response.results(), city, date);
-        logger.info("City saved: {} ", solarInfo);
+        Optional<SolarInfo> existingSolarInfo = solarInfoRepository.findByCityAndDate(city, date);
+
+        if (existingSolarInfo.isPresent()) {
+            return existingSolarInfo.get();
+        }
+
+        logger.info("Solar info saved: {} ", solarInfo);
         return solarInfoRepository.save(solarInfo);
     }
 
