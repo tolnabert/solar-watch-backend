@@ -1,9 +1,11 @@
 package com.codecool.solarwatch.controller;
 
+import com.codecool.solarwatch.model.dto.AddSolarInfoDTO;
 import com.codecool.solarwatch.model.dto.SolarInfoDTO;
 import com.codecool.solarwatch.service.SolarWatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -28,5 +30,12 @@ public class SolarInfoController {
     ) {
         LOG.info("Received request to get solar info for city {}", city);
         return solarWatchService.getSolarInfo(city, country, state, date);
+    }
+
+    @PostMapping("/add-solar-info")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addSolarInfo(@RequestBody AddSolarInfoDTO solarInfoDTO) {
+        System.out.println(solarInfoDTO);
+        solarWatchService.addSolarInfo(solarInfoDTO);
     }
 }

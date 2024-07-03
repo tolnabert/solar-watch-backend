@@ -1,17 +1,16 @@
 package com.codecool.solarwatch.service;
 
 import com.codecool.solarwatch.exceptionhandler.*;
-import com.codecool.solarwatch.model.dto.SunriseSunsetDTO;
+import com.codecool.solarwatch.model.dto.*;
 import com.codecool.solarwatch.model.entity.City;
-import com.codecool.solarwatch.model.dto.CityDTO;
 import com.codecool.solarwatch.model.entity.SolarInfo;
-import com.codecool.solarwatch.model.dto.SolarInfoDTO;
-import com.codecool.solarwatch.model.dto.SunriseSunsetResultsResponse;
 import com.codecool.solarwatch.repository.CityRepository;
 import com.codecool.solarwatch.repository.SolarInfoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -19,8 +18,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.codecool.solarwatch.service.StringUtils.capitalize;
-import static com.codecool.solarwatch.service.StringUtils.capitalizeCountryCode;
 
 @Service
 public class SolarWatchService implements UrlQueryValidator {
@@ -73,17 +70,77 @@ public class SolarWatchService implements UrlQueryValidator {
         return solarInfoDTOSet;
     }
 
+    @Transactional
+    public void addSolarInfo(AddSolarInfoDTO solarInfoDTO) {
+        Optional<City> cityOptional = findCity(solarInfoDTO);
+
+        City city;
+        if (cityOptional.isPresent()) {
+            city = cityOptional.get();
+        } else {
+            city = saveNewCity(solarInfoDTO);
+        }
+
+        saveSolarInfo(solarInfoDTO, city);
+    }
+
+    private Optional<City> findCity(AddSolarInfoDTO solarInfoDTO) {
+        if (StringUtils.hasText(solarInfoDTO.state())) {
+            return cityRepository.findByNameAndCountryAndStateIgnoreCase(
+                    solarInfoDTO.cityName(),
+                    solarInfoDTO.country(),
+                    solarInfoDTO.state()
+            ).stream().findFirst();
+        } else {
+            return cityRepository.findByNameAndCountryIgnoreCase(
+                    solarInfoDTO.cityName(),
+                    solarInfoDTO.country()
+            ).stream().findFirst();
+        }
+    }
+
+    private City saveNewCity(AddSolarInfoDTO solarInfoDTO) {
+        City newCity = new City();
+
+        newCity.setPublicId(UUID.randomUUID());
+        newCity.setName(solarInfoDTO.cityName().toLowerCase());
+        newCity.setCountry(solarInfoDTO.country().toLowerCase());
+
+        String state = solarInfoDTO.state() != null && !solarInfoDTO.state().isEmpty() ? solarInfoDTO.state().toLowerCase() : null;
+        newCity.setState(state);
+
+        newCity.setLatitude(solarInfoDTO.latitude());
+        newCity.setLongitude(solarInfoDTO.longitude());
+
+        return cityRepository.save(newCity);
+    }
+
+    private void saveSolarInfo(AddSolarInfoDTO solarInfoDTO, City city) {
+        SolarInfo solarInfo = new SolarInfo();
+        solarInfo.setPublicId(UUID.randomUUID());
+        solarInfo.setCity(city);
+        solarInfo.setDate(solarInfoDTO.date());
+        solarInfo.setSunrise(solarInfoDTO.sunrise());
+        solarInfo.setSunset(solarInfoDTO.sunset());
+
+        solarInfoRepository.save(solarInfo);
+    }
+
     private SolarInfoDTO convertToSolarInfoDTO(SolarInfo solarInfo) {
         City city = solarInfo.getCity();
         return new SolarInfoDTO(
-                capitalize(city.getName()),
+                StringUtils.capitalize(city.getName()),
                 capitalizeCountryCode(city.getCountry()),
-                city.getState() != null ? capitalize(city.getState()) : null,
+                city.getState() != null ? StringUtils.capitalize(city.getState()) : null,
                 city.getLatitude(),
                 city.getLongitude(),
                 solarInfo.getSunrise(),
                 solarInfo.getSunset()
         );
+    }
+
+    private String capitalizeCountryCode(String countryCode) {
+        return StringUtils.hasText(countryCode) ? countryCode.toUpperCase() : null;
     }
 
     private City saveCity(String cityName, String country, String state) {
