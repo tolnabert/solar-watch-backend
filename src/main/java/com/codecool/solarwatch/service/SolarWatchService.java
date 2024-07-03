@@ -12,6 +12,7 @@ import com.codecool.solarwatch.repository.SolarInfoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -19,8 +20,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.codecool.solarwatch.service.StringUtils.capitalize;
-import static com.codecool.solarwatch.service.StringUtils.capitalizeCountryCode;
 
 @Service
 public class SolarWatchService implements UrlQueryValidator {
@@ -76,14 +75,18 @@ public class SolarWatchService implements UrlQueryValidator {
     private SolarInfoDTO convertToSolarInfoDTO(SolarInfo solarInfo) {
         City city = solarInfo.getCity();
         return new SolarInfoDTO(
-                capitalize(city.getName()),
+                StringUtils.capitalize(city.getName()),
                 capitalizeCountryCode(city.getCountry()),
-                city.getState() != null ? capitalize(city.getState()) : null,
+                city.getState() != null ? StringUtils.capitalize(city.getState()) : null,
                 city.getLatitude(),
                 city.getLongitude(),
                 solarInfo.getSunrise(),
                 solarInfo.getSunset()
         );
+    }
+
+    private String capitalizeCountryCode(String countryCode) {
+        return StringUtils.hasText(countryCode) ? countryCode.toUpperCase() : null;
     }
 
     private City saveCity(String cityName, String country, String state) {
