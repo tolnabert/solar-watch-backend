@@ -38,4 +38,11 @@ public class SolarInfoController {
         System.out.println(solarInfoDTO);
         solarWatchService.addSolarInfo(solarInfoDTO);
     }
+
+    @GetMapping("/all-solar-info/")
+    public Set<SolarInfoDTO> getAllSolarInfo() {
+        return solarWatchService.getAllSolarInfo();
+    }
+
+
 }
