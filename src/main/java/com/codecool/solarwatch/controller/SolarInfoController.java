@@ -32,17 +32,14 @@ public class SolarInfoController {
         return solarWatchService.getSolarInfo(city, country, state, date);
     }
 
-    @PostMapping("/add-solar-info")
+    @PostMapping("/admin/solar-info/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addSolarInfo(@RequestBody AddSolarInfoDTO solarInfoDTO) {
-        System.out.println(solarInfoDTO);
         solarWatchService.addSolarInfo(solarInfoDTO);
     }
 
-    @GetMapping("/all-solar-info/")
+    @GetMapping("/admin/solar-info/all")
     public Set<SolarInfoDTO> getAllSolarInfo() {
         return solarWatchService.getAllSolarInfo();
     }
-
-
 }

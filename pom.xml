@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.codecool</groupId>
-    <artifactId>solarInfo-watch</artifactId>
+    <artifactId>solar-watch</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>solarInfo-watch</name>
-    <description>solarInfo-watch</description>
+    <name>solar-watch</name>
+    <description>solar-watch</description>
     <properties>
         <java.version>21</java.version>
     </properties>

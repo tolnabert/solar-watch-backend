@@ -68,8 +68,7 @@ public class WebSecurityConfig {
                         auth
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/solar-info/**").hasRole("USER")
-                                .requestMatchers("/api/add-solar-info").hasRole("ADMIN")
-                                .requestMatchers("/api/all-solar-info").hasRole("ADMIN")
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 );
 
