@@ -261,4 +261,13 @@ public class SolarWatchService implements UrlQueryValidator {
     public void validateDate(String dateStr) {
         LocalDate.parse(dateStr, dateFormatter);
     }
+
+    public Set<SolarInfoDTO> getAllSolarInfo() {
+        Set<SolarInfoDTO> solarInfoDTOSet = new HashSet<>();
+        Iterable<SolarInfo> solarInfos = solarInfoRepository.findAll();
+        for (SolarInfo solarInfo : solarInfos) {
+            solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
+        }
+        return solarInfoDTOSet;
+    }
 }
