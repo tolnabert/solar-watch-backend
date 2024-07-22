@@ -41,29 +41,42 @@ public class SolarWatchService implements UrlQueryValidator {
         String normalizedCountryName = country.toLowerCase();
         String normalizedStateName = (state == null) ? null : state.toLowerCase();
 
-        Set<City> cities;
-        if (normalizedStateName == null) {
-            cities = cityRepository.findByNameAndCountryIgnoreCase(cityName, country);
-        } else {
-            cities = cityRepository.findByNameAndCountryAndStateIgnoreCase(cityName, country, state);
-        }
-
-        Set<SolarInfoDTO> solarInfoDTOSet = new HashSet<>();
+        Set<City> cities = findCities(normalizedCityName, normalizedCountryName, normalizedStateName);
 
         if (cities.isEmpty()) {
-            City city = saveCity(normalizedCityName, normalizedCountryName, normalizedStateName);
-            SolarInfo solarInfo = saveSunriseSunset(city, date);
-            solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
+            return handleEmptyCities(normalizedCityName, normalizedCountryName, normalizedStateName, date);
         } else {
-            for (City city : cities) {
-                Optional<SolarInfo> solarInfoOptional = solarInfoRepository.findByCityAndDate(city, date);
+            return handleNonEmptyCities(cities, date);
+        }
+    }
 
-                if (solarInfoOptional.isPresent()) {
-                    solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfoOptional.get()));
-                } else {
-                    SolarInfo solarInfo = saveSunriseSunset(city, date);
-                    solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
-                }
+    private Set<City> findCities(String cityName, String country, String state) {
+        if (state == null) {
+            return cityRepository.findByNameAndCountryIgnoreCase(cityName, country);
+        } else {
+            return cityRepository.findByNameAndCountryAndStateIgnoreCase(cityName, country, state);
+        }
+    }
+
+    private Set<SolarInfoDTO> handleEmptyCities(String cityName, String country, String state, String date) {
+        City city = saveCity(cityName, country, state);
+        SolarInfo solarInfo = saveSunriseSunset(city, date);
+        Set<SolarInfoDTO> solarInfoDTOSet = new HashSet<>();
+        solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
+        return solarInfoDTOSet;
+    }
+
+    private Set<SolarInfoDTO> handleNonEmptyCities(Set<City> cities, String date) {
+        Set<SolarInfoDTO> solarInfoDTOSet = new HashSet<>();
+
+        for (City city : cities) {
+            Optional<SolarInfo> solarInfoOptional = solarInfoRepository.findByCityAndDate(city, date);
+
+            if (solarInfoOptional.isPresent()) {
+                solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfoOptional.get()));
+            } else {
+                SolarInfo solarInfo = saveSunriseSunset(city, date);
+                solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
             }
         }
 
