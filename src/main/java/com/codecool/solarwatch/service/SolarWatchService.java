@@ -41,16 +41,16 @@ public class SolarWatchService implements UrlQueryValidator {
         String normalizedCountryName = country.toLowerCase();
         String normalizedStateName = (state == null) ? null : state.toLowerCase();
 
-        Set<City> cities = findCities(normalizedCityName, normalizedCountryName, normalizedStateName);
+        Set<City> citiesInDb = retrieveCitiesFromDatabase(normalizedCityName, normalizedCountryName, normalizedStateName);
 
-        if (cities.isEmpty()) {
-            return handleEmptyCities(normalizedCityName, normalizedCountryName, normalizedStateName, date);
+        if (citiesInDb.isEmpty()) {
+            return processNewCityWithSolarInfo(normalizedCityName, normalizedCountryName, normalizedStateName, date);
         } else {
-            return handleNonEmptyCities(cities, date);
+            return processExistingCitiesWithSolarInfo(citiesInDb, date);
         }
     }
 
-    private Set<City> findCities(String cityName, String country, String state) {
+    private Set<City> retrieveCitiesFromDatabase(String cityName, String country, String state) {
         if (state == null) {
             return cityRepository.findByNameAndCountryIgnoreCase(cityName, country);
         } else {
@@ -58,15 +58,15 @@ public class SolarWatchService implements UrlQueryValidator {
         }
     }
 
-    private Set<SolarInfoDTO> handleEmptyCities(String cityName, String country, String state, String date) {
-        City city = saveCity(cityName, country, state);
-        SolarInfo solarInfo = saveSunriseSunset(city, date);
+    private Set<SolarInfoDTO> processNewCityWithSolarInfo(String cityName, String country, String state, String date) {
+        City city = fetchAndSaveCity(cityName, country, state);
+        SolarInfo solarInfo = fetchAndSaveSunriseSunset(city, date);
         Set<SolarInfoDTO> solarInfoDTOSet = new HashSet<>();
         solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
         return solarInfoDTOSet;
     }
 
-    private Set<SolarInfoDTO> handleNonEmptyCities(Set<City> cities, String date) {
+    private Set<SolarInfoDTO> processExistingCitiesWithSolarInfo(Set<City> cities, String date) {
         Set<SolarInfoDTO> solarInfoDTOSet = new HashSet<>();
 
         for (City city : cities) {
@@ -75,7 +75,7 @@ public class SolarWatchService implements UrlQueryValidator {
             if (solarInfoOptional.isPresent()) {
                 solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfoOptional.get()));
             } else {
-                SolarInfo solarInfo = saveSunriseSunset(city, date);
+                SolarInfo solarInfo = fetchAndSaveSunriseSunset(city, date);
                 solarInfoDTOSet.add(convertToSolarInfoDTO(solarInfo));
             }
         }
@@ -156,7 +156,7 @@ public class SolarWatchService implements UrlQueryValidator {
         return StringUtils.hasText(countryCode) ? countryCode.toUpperCase() : null;
     }
 
-    private City saveCity(String cityName, String country, String state) {
+    private City fetchAndSaveCity(String cityName, String country, String state) {
         String url = buildCityUrl(cityName, country, state);
         logger.info("URL: " + url);
         CityDTO[] cityArray = fetchCity(url);
@@ -226,7 +226,7 @@ public class SolarWatchService implements UrlQueryValidator {
         return String.format("https://api.sunrise-sunset.org/json?lat=%s&lng=%s&date=%s", latitude, longitude, date);
     }
 
-    public SolarInfo saveSunriseSunset(City city, String date) {
+    public SolarInfo fetchAndSaveSunriseSunset(City city, String date) {
         String url = buildSunriseSunsetUrl(city.getLatitude(), city.getLongitude(), date);
         SunriseSunsetResultsResponse response = fetchSunriseSunset(url);
         return saveAndReturnSolarInfo(response, city, date);
