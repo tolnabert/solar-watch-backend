@@ -145,6 +145,7 @@ public class SolarWatchService implements UrlQueryValidator {
                 StringUtils.capitalize(city.getName()),
                 capitalizeCountryCode(city.getCountry()),
                 city.getState() != null ? StringUtils.capitalize(city.getState()) : null,
+                solarInfo.getDate(),
                 city.getLatitude(),
                 city.getLongitude(),
                 solarInfo.getSunrise(),
