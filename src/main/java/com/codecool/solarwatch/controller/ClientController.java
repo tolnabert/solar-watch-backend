@@ -30,14 +30,20 @@ public class ClientController {
         return clientService.authenticateUser(loginRequest);
     }
 
+    @GetMapping("/test/user")
+    @PreAuthorize("hasRole('USER')")
+    public String testUserEndpoint() {
+        return clientService.getUserUsername();
+    }
+
     @GetMapping("/test/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public String testMe() {
+    public String testAdminEndpoint() {
         return clientService.getAdminUsername();
     }
 
     @GetMapping("/test/public")
-    public String testEndpoint() {
+    public String testPublicEndpoint() {
         return "This is a public endpoint!";
     }
 }

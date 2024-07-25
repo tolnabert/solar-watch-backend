@@ -74,6 +74,11 @@ public class ClientService {
 
     public String getAdminUsername() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return "Hello admin: " + user.getUsername();
+        return "Admin Endpoint Accessed by admin: " + user.getUsername();
+    }
+
+    public String getUserUsername() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return "Secured Endpoint Accessed by user: " + user.getUsername();
     }
 }

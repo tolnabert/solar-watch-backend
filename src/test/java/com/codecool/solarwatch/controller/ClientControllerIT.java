@@ -7,18 +7,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -77,34 +76,36 @@ public class ClientControllerIT {
 
     @Test
     void testPublicEndpoint() throws Exception {
-        mvc.perform(get("/api/auth/test/public")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value("This is a public endpoint!"));
+        // Act
+        ResultActions result = mvc.perform(get("/api/auth/test/public")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Assert
+        result.andExpect(status().isOk())
+                .andExpect(content().string("This is a public endpoint!"));
     }
 
     @Test
+    @WithMockUser(username = "userAuth", roles = "USER")
+    void testUserEndpoint() throws Exception {
+        // Act
+        ResultActions result = mvc.perform(get("/api/auth/test/user")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Assert
+        result.andExpect(status().isOk())
+                .andExpect(content().string("Secured Endpoint Accessed by user: userAuth"));
+    }
+
+    @Test
+    @WithMockUser(username = "adminAuth", roles = "ADMIN")
     void testAdminEndpoint() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername("adminAuth");
-        loginRequest.setPassword("asd");
+        // Act
+        ResultActions result = mvc.perform(get("/api/auth/test/admin")
+                .contentType(MediaType.APPLICATION_JSON));
 
-        MvcResult loginResponse = mvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.jwt").exists())
-                .andExpect(jsonPath("$.username").value("adminAuth"))
-                .andExpect(jsonPath("$.roles").isArray())
-                .andReturn();
-
-//        String responseBody = loginResponse.getResponse().getContentAsString();
-//        String jwtToken = responseBody.split("\"jwt\":\"")[1].split("\"")[0];
-//
-//        mvc.perform(get("/api/auth/test/admin")
-//                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$").value("Hello admin: adminAuth"));
+        // Assert
+        result.andExpect(status().isOk())
+                .andExpect(content().string("Admin Endpoint Accessed by admin: adminAuth"));
     }
 }
