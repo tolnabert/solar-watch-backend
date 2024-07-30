@@ -22,7 +22,7 @@ import java.util.*;
 @Service
 public class SolarWatchService implements UrlQueryValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(SolarWatchService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SolarWatchService.class);
     private static final String API_KEY = "c19404c7cbefe404870319115a758b46";
     private final WebClient webClient;
     private final DateTimeFormatter dateFormatter;
@@ -111,7 +111,7 @@ public class SolarWatchService implements UrlQueryValidator {
         return cityRepository.save(newCity);
     }
 
-        private void saveSolarInfo(AddSolarInfoDTO solarInfoDTO, City city) {
+    private void saveSolarInfo(AddSolarInfoDTO solarInfoDTO, City city) {
         SolarInfo solarInfo = new SolarInfo();
         solarInfo.setPublicId(UUID.randomUUID());
         solarInfo.setCity(city);
@@ -150,7 +150,7 @@ public class SolarWatchService implements UrlQueryValidator {
 
     private City fetchAndSaveCity(String cityName, String country, String state) {
         String url = buildCityUrl(cityName, country, state);
-        logger.info("URL: " + url);
+        LOG.info("URL: " + url);
         CityDTO[] cityArray = fetchCity(url);
         return saveAndReturnCity(validateCityResponse(cityArray, cityName, country, state));
     }
@@ -175,7 +175,7 @@ public class SolarWatchService implements UrlQueryValidator {
         if (cityArray == null || cityArray.length <= 0) {
             throw new CityNotFoundExternalException();
         } else {
-            logger.info("City data fetched from external API");
+            LOG.info("City data fetched from external API");
             return cityArray;
         }
     }
@@ -184,7 +184,7 @@ public class SolarWatchService implements UrlQueryValidator {
         if (cityArray == null || cityArray.length == 0) {
             throw new CityNotFoundInternalException(cityName, country, state);
         }
-        logger.info("City array: " + Arrays.toString(cityArray));
+        LOG.info("City array: " + Arrays.toString(cityArray));
         return cityArray[0];
     }
 
@@ -194,7 +194,7 @@ public class SolarWatchService implements UrlQueryValidator {
         if (existingCity.isPresent()) {
             return existingCity.get();
         }
-        logger.info("City saved: {} ", city);
+        LOG.info("City saved: {} ", city);
         return cityRepository.save(city);
     }
 
@@ -218,7 +218,7 @@ public class SolarWatchService implements UrlQueryValidator {
         return String.format("https://api.sunrise-sunset.org/json?lat=%s&lng=%s&date=%s", latitude, longitude, date);
     }
 
-    public SolarInfo fetchAndSaveSunriseSunset(City city, String date) {
+    private SolarInfo fetchAndSaveSunriseSunset(City city, String date) {
         String url = buildSunriseSunsetUrl(city.getLatitude(), city.getLongitude(), date);
         SunriseSunsetResultsResponse response = fetchSunriseSunset(url);
         return saveAndReturnSolarInfo(response, city, date);
@@ -236,7 +236,7 @@ public class SolarWatchService implements UrlQueryValidator {
         if (response == null || response.results() == null) {
             throw new SolarInfoNotFoundException("Sunrise/sunset not found for the provided coordinates.");
         }
-        logger.info("Sunrise/sunset data fetched from external API");
+        LOG.info("Sunrise/sunset data fetched from external API");
         return response;
     }
 
@@ -248,7 +248,7 @@ public class SolarWatchService implements UrlQueryValidator {
             return existingSolarInfo.get();
         }
 
-        logger.info("Solar info saved: {} ", solarInfo);
+        LOG.info("Solar info saved: {} ", solarInfo);
         return solarInfoRepository.save(solarInfo);
     }
 
