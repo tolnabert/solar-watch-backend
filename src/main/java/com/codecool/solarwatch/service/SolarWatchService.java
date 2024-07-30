@@ -85,50 +85,33 @@ public class SolarWatchService implements UrlQueryValidator {
 
     @Transactional
     public void addSolarInfo(AddSolarInfoDTO solarInfoDTO) {
-        Optional<City> cityOptional = findCity(solarInfoDTO);
-
-        City city;
-        if (cityOptional.isPresent()) {
-            city = cityOptional.get();
-        } else {
-            city = saveNewCity(solarInfoDTO);
-        }
-
+        City city = findOrCreateCity(solarInfoDTO);
         saveSolarInfo(solarInfoDTO, city);
     }
 
-    private Optional<City> findCity(AddSolarInfoDTO solarInfoDTO) {
-        if (StringUtils.hasText(solarInfoDTO.state())) {
-            return cityRepository.findByNameAndCountryAndStateIgnoreCase(
-                    solarInfoDTO.cityName(),
-                    solarInfoDTO.country(),
-                    solarInfoDTO.state()
-            ).stream().findFirst();
+    private City findOrCreateCity(AddSolarInfoDTO solarInfoDTO) {
+        Optional<City> cityOptional = findCity(solarInfoDTO);
+
+        if (cityOptional.isPresent()) {
+            return cityOptional.get();
         } else {
-            return cityRepository.findByNameAndCountryIgnoreCase(
-                    solarInfoDTO.cityName(),
-                    solarInfoDTO.country()
-            ).stream().findFirst();
+            return saveNewCity(solarInfoDTO);
         }
     }
 
     private City saveNewCity(AddSolarInfoDTO solarInfoDTO) {
         City newCity = new City();
-
         newCity.setPublicId(UUID.randomUUID());
         newCity.setName(solarInfoDTO.cityName().toLowerCase());
         newCity.setCountry(solarInfoDTO.country().toLowerCase());
-
-        String state = solarInfoDTO.state() != null && !solarInfoDTO.state().isEmpty() ? solarInfoDTO.state().toLowerCase() : null;
-        newCity.setState(state);
-
+        newCity.setState(solarInfoDTO.state() != null ? solarInfoDTO.state().toLowerCase() : null);
         newCity.setLatitude(solarInfoDTO.latitude());
         newCity.setLongitude(solarInfoDTO.longitude());
 
         return cityRepository.save(newCity);
     }
 
-    private void saveSolarInfo(AddSolarInfoDTO solarInfoDTO, City city) {
+        private void saveSolarInfo(AddSolarInfoDTO solarInfoDTO, City city) {
         SolarInfo solarInfo = new SolarInfo();
         solarInfo.setPublicId(UUID.randomUUID());
         solarInfo.setCity(city);
@@ -137,6 +120,14 @@ public class SolarWatchService implements UrlQueryValidator {
         solarInfo.setSunset(solarInfoDTO.sunset());
 
         solarInfoRepository.save(solarInfo);
+    }
+
+    private Optional<City> findCity(AddSolarInfoDTO solarInfoDTO) {
+        return cityRepository.findByNameAndCountryAndState(
+                solarInfoDTO.cityName().toLowerCase(),
+                solarInfoDTO.country().toLowerCase(),
+                solarInfoDTO.state() != null ? solarInfoDTO.state().toLowerCase() : null
+        );
     }
 
     private SolarInfoDTO convertToSolarInfoDTO(SolarInfo solarInfo) {
