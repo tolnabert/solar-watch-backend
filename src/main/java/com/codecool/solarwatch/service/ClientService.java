@@ -1,5 +1,6 @@
 package com.codecool.solarwatch.service;
 
+import com.codecool.solarwatch.exceptionhandler.ConflictException;
 import com.codecool.solarwatch.model.entity.Client;
 import com.codecool.solarwatch.model.entity.Role;
 import com.codecool.solarwatch.model.payload.JwtResponse;
@@ -17,9 +18,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ClientService {
@@ -37,14 +36,22 @@ public class ClientService {
         this.jwtUtils = jwtUtils;
     }
 
-    //TODO logger needed
-    public void registerClient(RegistrationRequest registrationRequest) {//TODO how can I pass this exception to frontend, so I can tell the issue
+    public void registerClient(RegistrationRequest registrationRequest) {
+        List<String> errors = new ArrayList<>();
+
         if (clientRepository.existsByUsername(registrationRequest.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+            errors.add("Username already exists");
         }
 
         if (clientRepository.existsByEmail(registrationRequest.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            errors.add("Email already exists");
+        }
+
+        if (!errors.isEmpty()) {
+            List<String> sortedErrors = new ArrayList<>(errors);
+            sortedErrors.sort(Comparator.naturalOrder());
+
+            throw new ConflictException(String.join("; ", sortedErrors));
         }
 
         Client client = new Client();
