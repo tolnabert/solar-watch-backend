@@ -81,7 +81,7 @@ public class ClientService {
 
     public String getAdminUsername() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return "CI works\nAdmin Endpoint Accessed by admin: " + user.getUsername();
+        return "CI works test \nAdmin Endpoint Accessed by admin: " + user.getUsername();
     }
 
     public String getUserUsername() {
