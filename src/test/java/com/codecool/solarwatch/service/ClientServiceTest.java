@@ -143,7 +143,7 @@ class ClientServiceTest {
 
         String result = clientService.getAdminUsername();
 
-        assertEquals("CI works test \nAdmin Endpoint Accessed by admin: adminUser", result);
+        assertEquals("Admin Endpoint Accessed by admin: adminUser", result);
     }
 
     @Test
